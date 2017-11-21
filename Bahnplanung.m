@@ -98,7 +98,7 @@ if ~W_basiert
 end
 V = zeros(3,4,6,length(T));
 
-% direkte Kinematik für Transformationsmatrizen und Arbeitsraumplots
+% direkte Kinematik fuer Transformationsmatrizen und Arbeitsraumplots
 for t = 1:length(T)
   rob.q = Q(:,t);
   rob.zeit = T(t);
