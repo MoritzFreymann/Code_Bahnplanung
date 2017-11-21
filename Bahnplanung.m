@@ -53,7 +53,7 @@ Flag = 1;
 
 %% -------------------------------------------------------------------------
 
-%----------------------- P2P-Bewegungen mit Polynomen ---------------------
+    %----------------------- P2P-Bewegungen mit Polynomen ---------------------
 
 % % Kubische Polynome
 if strcmp(flag_traj,'p2p_kub') == true
