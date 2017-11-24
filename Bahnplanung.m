@@ -7,7 +7,7 @@ clc
 %%
 
 % Waehlen Sie das gewuenschte Bahnplanungsverfahren aus
-flag_traj = 'p2p_kub' ; % Bahnplanungsverfahren 
+flag_traj = 'kubischeSpline' ; % Bahnplanungsverfahren 
                         % 'p2p_kub' p2p kubisches Polynom 
                         % 'p2p_quint' p2p quintisches Polynom
                         % 'kubischeSpline' kubische Spline
@@ -50,6 +50,9 @@ N_Q = 6;
 
 % Plots an
 Flag = 1;
+
+% Fuege Pfad hinzu
+addpath('C:\Users\Moritz\My\Studium\Roboterdynamik_Praktikum\2_Inverse_Kinematik\Code_Inverse_Kinematik');
 
 %% -------------------------------------------------------------------------
 
