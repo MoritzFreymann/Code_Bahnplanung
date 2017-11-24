@@ -16,7 +16,7 @@ N_Q       = size( W_stuetz,1 );
 N_I       = size( W_stuetz,2 ) -1;
 
 % Zeitintervall fuer Interpolation
-T_I       = T_ges/N_I;        % Zeitintervall fuer ein Teilstueck
+T_I       = T_ges/N_I;        % Zeit fuer ein Teilstueck
 t_I       = 0:delta_T:T_I;      % Zeitvektor fuer ein Teilstueck
 N_T_I     = length(t_I);        % Anzahl der Zeitpunkte eines Teilstuecks
 
@@ -43,7 +43,7 @@ for i=1:N_I
     d = W_stuetz(:,i);
     
     % Schleife ueber Punkte des Intervalls 
-    % (letzter Punkt wird weggelassen, das dieser der erste des naechsten
+    % (letzter Punkt wird weggelassen, da dieser der erste des naechsten
     % Intervalls ist)
     for k=1:N_T_I-1
         S_I(:,k)       = a * t_I(k)^3 + b * t_I(k)^2 + d;
@@ -67,6 +67,6 @@ dot_S(:,last+1) = 0;
 ddot_S(:,last+1) = 0;
 
 % Bercehnung Zeitvektor
-T = 0:delta_T:11*t_I(N_T_I);
+T = 0:delta_T:N_I*t_I(N_T_I);   % Anzahl an Intervallen multipliziert mit der verwendeten Zeit eines Intervalls
 %% --- ENDE ARBEITSBEREICH --------------------------------------------
 end % function

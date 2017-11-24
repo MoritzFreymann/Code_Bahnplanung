@@ -39,7 +39,7 @@ T_ges = N_I*t_I(N_T_I);
 h = T_ges / ( N_I ) * ones( 1, N_I );
 
 H = zeros(N_p);
-r = zeros(N_p,N_Q);
+x = zeros(N_p,N_Q);
 
 %% Berechnung H
 % erste Zeile
@@ -50,12 +50,12 @@ spalte = 1; % setzte zu beschreibende Spalte auf 1
 % Zeilen 2 - n-2
 for i=2:N_p-1
     
-    H(i,spalte) = h(i-1);               % schreibe erste Spalte
-    spalte = spalte+1;                  % eine Spalte weiter
-    H(i,spalte) = 2*( h(i) + h(i-1) );  % schreibe zweite Spalte
-    spalte = spalte+1;                  % eine Spalte weiter
-    H(i,spalte) = h(i);                 % schreibe dritte Spalte
-    spalte = spalte-1;                  % eine Spalte zurueck (neue Spalte ist eins links von erster beschribener Spalte der vorherigen Zeile)
+    H(i,spalte) = h(i-1);
+    spalte = spalte+1;  % eine Spalte weiter
+    H(i,spalte) = 2*( h(i) + h(i-1) );
+    spalte = spalte+1;  % eine Spalte weiter
+    H(i,spalte) = h(i);
+    spalte = spalte-1;  % eine Spalte zurueck (neue
     
 end
 % letzte Zeile
@@ -64,28 +64,26 @@ H(N_p,N_p) = 2*h(N_p-1);
 
 %% Berechnung x
 % erste Zeile
-r(1,:) = ( 6*( W_stuetz(:,2) - W_stuetz(:,1) )/h(1) )';
+x(1,:) = ( 6*( W_stuetz(:,2) - W_stuetz(:,1) )/h(1) )';
 % Zeilen 2 - n-2
 for i=2:N_p-1
     
-    r(i,:) = ( -6*( W_stuetz(:,i) - W_stuetz(:,i-1) )/h(i-1) + 6*( W_stuetz(:,i+1) - W_stuetz(:,i) )/h(i) )';
+    x(i,:) = ( -6*( W_stuetz(:,i) - W_stuetz(:,i-1) )/h(i-1) + 6*( W_stuetz(:,i+1) - W_stuetz(:,i) )/h(i) )';
     
 end
 % letzte Zeile
-r(N_p,:) = ( -6*( W_stuetz(:,N_p) - W_stuetz(:,N_p-1) )/h(N_p-1) )';
+x(N_p,:) = ( -6*( W_stuetz(:,N_p) - W_stuetz(:,N_p-1) )/h(N_p-1) )';
 %% Berechnung ddot_p
-ddot_p = H\r;
+ddot_p = H\x;
 
 %% --- ARBEITSBEREICH: ------------------------------------------------
-% Berechne Zeitvektor T fuer die gesamte Zeitspanne
-T = 0:delta_T:N_I*t_I(N_T_I); % Anzahl an Intervallen multipliziert mit der verwendeten Zeit eines Intervalls
-
 % Initialisierung der Trajektorie
-S = zeros(N_Q, length(T) );
+S = zeros(N_Q, N_I*(N_T_I-1)+1);
 dot_S = zeros( size(S) );
 ddot_S = zeros( size(S) );
 
-
+% Anzahl an Intervallen multipliziert mit der verwendeten Zeit eines Intervalls
+T = 0:delta_T:N_I*t_I(N_T_I);
 
 % Schleife ueber alle Intervalle
 for i = 1:N_I
@@ -100,17 +98,9 @@ for i = 1:N_I
     % (letzter Punkt wird weggelassen, da dieser der erste des naechsten
     % Intervalls ist)
     for k=1:N_T_I-1
-        
-        % Spalte der Gesamt-Trajektorie, in die der erste Punkt  
-        % des jeweiligen Intervalls i geschrieben wird.
-        % Alle weiteren Punkte des Intervalls sind um k verschoben
-        spalte = (i-1)*(N_T_I-1); 
-        
-        % Schreibe Werte der Trajektorie vom ersten Punkt des Intervalls
-        % bis zum n-1ten Punkt in Gesamt-Trajektorie
-        S(:, spalte + k) = a * t_I(k)^3 + b * t_I(k)^2 + c * t_I(k) + d;
-        dot_S(:,spalte + k) = 3*a * t_I(k)^2 + 2*b * t_I(k) + c;
-        ddot_S(:,spalte + k) = 6*a * t_I(k) + 2*b;
+        S(:,(i-1)*(N_T_I-1) + k) = a * t_I(k)^3 + b * t_I(k)^2 + c * t_I(k) + d;
+        dot_S(:,(i-1)*(N_T_I-1) + k) = 3*a * t_I(k)^2 + 2*b * t_I(k) + c;
+        ddot_S(:,(i-1)*(N_T_I-1) + k) = 6*a * t_I(k) + 2*b;
     end
 end
 
