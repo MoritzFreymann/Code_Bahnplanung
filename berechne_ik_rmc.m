@@ -1,4 +1,4 @@
-function rob = berechne_ik_rmc(rob,W,K,Option, DGLVerfahren, dot_q_old)
+function rob = berechne_ik_rmc(rob,W,K,Option)
     % Berechnung der Inversen Kinematik ueber Resolved Motion Rate Control
     % W     ...positiv definite Wichtungsmatrix
     % K     ...Driftkompensationsmatrix
@@ -43,22 +43,6 @@ function rob = berechne_ik_rmc(rob,W,K,Option, DGLVerfahren, dot_q_old)
     rob.dot_q = dot_q_new;
 
     % Gelenkwinkel ueber explizites Euler-Verfahren berechnen
-    % rob.q = rob.q+rob.dot_q*rob.dt;
+    rob.q = rob.q+rob.dot_q*rob.dt;
     
-    if strcmp(DGLVerfahren,'Euler') == true
-        % Gelenkwinkel ueber explizites Euler-Verfahren berechnen
-        rob.q = rob.q+rob.dot_q*rob.dt;
-        
-    elseif strcmp(DGLVerfahren,'AB2') == true
-        if norm(dot_q_old ) == 0
-            % Beim ersten Mal Gelenkwinkel ueber explizites Euler-Verfahren berechnen
-            rob.q = rob.q+rob.dot_q*rob.dt;
-        else            
-            % Gelenkwinkel ueber Adams_Bashforth-Verfahren berechnen
-            rob.q = rob.q + (rob.dt/2.0) * (3*rob.dot_q - dot_q_old);
-        end
-    else
-        % Ungueltige Option
-        error('Ungueltige Option gewaehlt!')
-    end
 end
