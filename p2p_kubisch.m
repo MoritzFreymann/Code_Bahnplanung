@@ -16,7 +16,7 @@ N_Q       = size( W_stuetz,1 );
 N_I       = size( W_stuetz,2 ) -1;
 
 % Zeitintervall fuer Interpolation
-T_I       = T_ges/N_I;        % Zeit fuer ein Teilstueck
+T_I       = T_ges/N_I;          % Zeit fuer ein Teilstueck
 t_I       = 0:delta_T:T_I;      % Zeitvektor fuer ein Teilstueck
 N_T_I     = length(t_I);        % Anzahl der Zeitpunkte eines Teilstuecks
 
@@ -62,9 +62,9 @@ for i=1:N_I
 end
 
 % Berechnung letzter Punkt der Trajektorie
-S(:,last+1) = W_stuetz(:,N_I+1);
-dot_S(:,last+1) = 0;
-ddot_S(:,last+1) = 0;
+S(:,last+1) = a * t_I(N_T_I)^3 + b * t_I(N_T_I)^2 + d;
+dot_S(:,last+1) = 3*a * t_I(N_T_I)^2 + 2*b * t_I(N_T_I);
+ddot_S(:,last+1) = 6*a * t_I(N_T_I) + 2*b;
 
 % Bercehnung Zeitvektor
 T = 0:delta_T:N_I*t_I(N_T_I);   % Anzahl an Intervallen multipliziert mit der verwendeten Zeit eines Intervalls

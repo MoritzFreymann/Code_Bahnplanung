@@ -7,7 +7,7 @@ clc
 %%
 
 % Waehlen Sie das gewuenschte Bahnplanungsverfahren aus
-flag_traj = 'kubischeSpline' ; % Bahnplanungsverfahren 
+flag_traj = 'p2p_kub' ; % Bahnplanungsverfahren 
                         % 'p2p_kub' p2p kubisches Polynom 
                         % 'p2p_quint' p2p quintisches Polynom
                         % 'kubischeSpline' kubische Spline

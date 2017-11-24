@@ -38,31 +38,32 @@ T_ges = N_I*t_I(N_T_I);
 % Aequidistanter h-Vektor
 h = T_ges / ( N_I ) * ones( 1, N_I );
 
-H = zeros(N_p);
+% Initialisierung von A und r
+A = zeros(N_p);
 r = zeros(N_p,N_Q);
 
-%% Berechnung H
+%% Berechnung A
 % erste Zeile
-H(1,1) = 2*h(1);
-H(1,2) = h(1);
+A(1,1) = 2*h(1);
+A(1,2) = h(1);
 
 spalte = 1; % setzte zu beschreibende Spalte auf 1
 % Zeilen 2 - n-2
 for i=2:N_p-1
     
-    H(i,spalte) = h(i-1);               % schreibe erste Spalte
+    A(i,spalte) = h(i-1);               % schreibe erste Spalte
     spalte = spalte+1;                  % eine Spalte weiter
-    H(i,spalte) = 2*( h(i) + h(i-1) );  % schreibe zweite Spalte
+    A(i,spalte) = 2*( h(i) + h(i-1) );  % schreibe zweite Spalte
     spalte = spalte+1;                  % eine Spalte weiter
-    H(i,spalte) = h(i);                 % schreibe dritte Spalte
+    A(i,spalte) = h(i);                 % schreibe dritte Spalte
     spalte = spalte-1;                  % eine Spalte zurueck (neue Spalte ist eins links von erster beschribener Spalte der vorherigen Zeile)
     
 end
 % letzte Zeile
-H(N_p,N_p-1) = h(N_p-1);
-H(N_p,N_p) = 2*h(N_p-1);
+A(N_p,N_p-1) = h(N_p-1);
+A(N_p,N_p) = 2*h(N_p-1);
 
-%% Berechnung x
+%% Berechnung r
 % erste Zeile
 r(1,:) = ( 6*( W_stuetz(:,2) - W_stuetz(:,1) )/h(1) )';
 % Zeilen 2 - n-2
@@ -74,7 +75,7 @@ end
 % letzte Zeile
 r(N_p,:) = ( -6*( W_stuetz(:,N_p) - W_stuetz(:,N_p-1) )/h(N_p-1) )';
 %% Berechnung ddot_p
-ddot_p = H\r;
+ddot_p = A\r;
 
 %% --- ARBEITSBEREICH: ------------------------------------------------
 % Berechne Zeitvektor T fuer die gesamte Zeitspanne
@@ -85,8 +86,6 @@ S = zeros(N_Q, length(T) );
 dot_S = zeros( size(S) );
 ddot_S = zeros( size(S) );
 
-
-
 % Schleife ueber alle Intervalle
 for i = 1:N_I
     
@@ -96,16 +95,16 @@ for i = 1:N_I
     c = ( W_stuetz(:,i+1) - W_stuetz(:,i) ) / h(i) - h(i) * ( ddot_p(i+1,:) + 2*ddot_p(i,:) )' / 6;
     d = W_stuetz(:,i);
     
+    % Spalte der Gesamt-Trajektorie, in die der erste Punkt  
+    % des jeweiligen Intervalls i geschrieben wird.
+    % Alle weiteren Punkte des Intervalls sind um k verschoben
+    spalte = (i-1)*(N_T_I-1); 
+    
     % Berechnung der Trajektorie fuer aktuelles Intervall
     % (letzter Punkt wird weggelassen, da dieser der erste des naechsten
     % Intervalls ist)
     for k=1:N_T_I-1
-        
-        % Spalte der Gesamt-Trajektorie, in die der erste Punkt  
-        % des jeweiligen Intervalls i geschrieben wird.
-        % Alle weiteren Punkte des Intervalls sind um k verschoben
-        spalte = (i-1)*(N_T_I-1); 
-        
+               
         % Schreibe Werte der Trajektorie vom ersten Punkt des Intervalls
         % bis zum n-1ten Punkt in Gesamt-Trajektorie
         S(:, spalte + k) = a * t_I(k)^3 + b * t_I(k)^2 + c * t_I(k) + d;
