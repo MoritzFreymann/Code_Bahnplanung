@@ -63,6 +63,25 @@ end
 A(N_p,N_p-1) = h(N_p-1);
 A(N_p,N_p) = 2*h(N_p-1);
 
+%% LR-Zerlegung
+% A_R
+A_R = A;
+% Setzte Einträge der unteren Nebendiagonalen zu 0
+for i=2:N_p
+    A_R(i,i-1) = 0;
+end
+
+% A_L
+A_L = A;
+% Setzte Einträge der Hauptdiagonlen zu 1
+for i=1:N_p
+    A_L(i,i) = 1;
+end
+% Setzte Einträge der oberen Nebendiagonalen zu 0
+for i=1:N_p-1
+    A_L(i,i+1) = 0;
+end
+
 %% Berechnung r
 % erste Zeile
 r(1,:) = ( 6*( W_stuetz(:,2) - W_stuetz(:,1) )/h(1) )';
@@ -74,9 +93,13 @@ for i=2:N_p-1
 end
 % letzte Zeile
 r(N_p,:) = ( -6*( W_stuetz(:,N_p) - W_stuetz(:,N_p-1) )/h(N_p-1) )';
+
 %% Berechnung ddot_p
 ddot_p = A\r;
 
+%% Berechnung ddot_p mit LR-Zerlegung
+% y = A_L\r;
+% ddot_p = A_R\y;
 %% --- ARBEITSBEREICH: ------------------------------------------------
 % Berechne Zeitvektor T fuer die gesamte Zeitspanne
 T = 0:delta_T:N_I*t_I(N_T_I); % Anzahl an Intervallen multipliziert mit der verwendeten Zeit eines Intervalls
