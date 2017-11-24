@@ -10,7 +10,7 @@ function [ S, dot_S, ddot_S, T ] = kubischer_spline( W_stuetz, T_ges, delta_T )
 % delta_T   := Taktzeit
 
 % Erzeugt aus n Stuetzvektoren p_i und einer Zeit T eine Trajektorie aus
-%stueckweise zusammengesetzten Polynomen dritten Grades (Spline)
+% stueckweise zusammengesetzten Polynomen dritten Grades (Spline)
 
 
 %% --- ARBEITSBEREICH: ------------------------------------------------
