@@ -8,7 +8,6 @@ function [Q, dot_Q, ddot_Q, T, Q_I, T_I] = parabolic_blends( W_stuetz, delta_T )
   % W_stuetz  := Stuetzpunkte
   % delta_T   := Taktzeit
 
-
   %% Einstellungen
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -16,18 +15,14 @@ function [Q, dot_Q, ddot_Q, T, Q_I, T_I] = parabolic_blends( W_stuetz, delta_T )
   dot_Q_I_max = 2.4*[ 1, 1, 1, 1, 1, 1 ]; % [rad/s]
   ddot_Q_I_max = 32*[ 1, 1, 1, 1, 1, 1 ]; % [rad/s^2]
 
-
   %% indirekte Kinematik Stuetzpunkte aus W nach Q
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   Q_I = berechne_gelenkwinkel( W_stuetz );
-
 
   % Anzahl der Stuetzpunkte
   N_I = length(Q_I(1,:));
   % Anzahl der Freiheitsgrade
   N_Q = length(Q_I(:,1));
-
-
 
   %% Berechnung der Schaltzeiten je Gelenk
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -38,34 +33,89 @@ function [Q, dot_Q, ddot_Q, T, Q_I, T_I] = parabolic_blends( W_stuetz, delta_T )
   t_b = zeros(N_Q,N_I);
   t_g = zeros(N_Q,N_I-1);
 
-  for g = 1:N_Q
+for g = 1:N_Q
 
     %% --- ARBEITSBEREICH: ------------------------------------------------
     % Ergaenzen Sie bitte hier die fehlenden Stellen.
     % Achten Sie auf die Laenge der benoetigten Schleifen.
     % Bedenken Sie auch, dass Nenner = 0 sein koennen.
     % ---------------------------------------------------------------------
-
+    
+    %% Startintervall
     % Berechnung der Geschwindigkeiten
-%     dot_Q_I = ???
+    dot_Q_I(g,1) = sign( Q_I(g,2) - Q_I(g,1) ) * dot_Q_I_max(g);
 
-
-    % Berechnung der Bescheunigungen
-%     ddot_Q_I = ???
-
+    % Berechnung der Beschleunigungen
+    ddot_Q_I(g,1) = sign( dot_Q_I(g,1) ) * ddot_Q_I_max(g);
 
     % Berechnung der Beschleunigungszeiten
-%     t_b = ???
-
-
+    if ddot_Q_I(g,1) == 0
+        % Beschleunigung ist gleich 0
+        t_b(g,1) = 0;
+    else
+        % Beschleunigung ist nicht 0
+        t_b(g,1) = dot_Q_I(g,1) / ddot_Q_I(g,1);
+    end
     % Berechnung der benoetigten Zeiten
-%     t_g = ???
+    if dot_Q_I(g,1) == 0
+        % Geschwindigkeit ist gleich 0
+        t_g(g,1) = 0;
+    else
+        % Geschwindigkeit ist nicht 0
+        t_g(g,1) = ( Q_I(g,2) - Q_I(g,1) ) / dot_Q_I(g,1) + 1/2.0 * t_b(g,1);
+    end
+    
+    %% Mittlere Intervalle
+    for i=2:N_I-1
+        % Berechnung der Geschwindigkeiten
+        dot_Q_I(g,i) = sign( Q_I(g,i+1) - Q_I(g,i) ) * dot_Q_I_max(g);
 
+        % Berechnung der Bescheunigungen
+        ddot_Q_I(g,i) = sign( dot_Q_I(g,i) - dot_Q_I(g,i-1) ) * ddot_Q_I_max(g);
+
+        % Berechnung der Beschleunigungszeiten
+        if ddot_Q_I(g,i) == 0
+            % Beschleunigung ist gleich 0
+            t_b(g,i) = 0;
+        else
+            % Beschleunigung ist nicht 0
+            t_b(g,i) = ( dot_Q_I(g,i) - dot_Q_I(g,i-1) ) / ddot_Q_I(g,i);
+        end
+
+        % Berechnung der benoetigten Zeiten
+        if dot_Q_I(g,i) == 0
+            % Geschwindigkeit ist gleich 0
+            t_g(g,i) = 0;
+        else
+            % Geschwindigkeit ist nicht 0
+            t_g(g,i) = ( Q_I(g,i+1) - Q_I(g,i) ) / dot_Q_I(g,i);
+        end
+
+    end
+    
+    %% Endintervall
+    % Berechnung der Bescheunigungen
+    ddot_Q_I(g,N_I) = sign( - dot_Q_I(g,N_I-1) ) * ddot_Q_I_max(g);
+
+    % Berechnung der Beschleunigungszeiten
+    if ddot_Q_I(g,N_I) == 0
+        % Beschleunigung ist gleich 0
+        t_b(g,N_I) = 0;
+    else
+        % Beschleunigung ist nicht 0
+        t_b(g,N_I) = - dot_Q_I(g,N_I-1) / ddot_Q_I(g,N_I);
+    end
+    % Berechnung der benoetigten Zeiten
+    if dot_Q_I(g,N_I-1) == 0
+        % Geschwindigkeit ist gleich 0
+        t_g(g,N_I-1) = 0;
+    else
+        % Geschwindigkeit ist nicht 0
+        t_g(g,N_I-1) = ( Q_I(g,N_I) - Q_I(g,N_I-1) ) / dot_Q_I(g,N_I-1) + 1/2.0 * t_b(g,N_I);
+    end
     %% --- ENDE ARBEITSBEREICH --------------------------------------------
 
-  end
-
-
+end
 
   %% Synchronisation
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,9 +124,6 @@ function [Q, dot_Q, ddot_Q, T, Q_I, T_I] = parabolic_blends( W_stuetz, delta_T )
   if min(t) <= 1e-3
     error('Zwei aufeinanderfolgende Stuetzpunkte sind zu nahe beieinander.')
   end
-
-
-
 
   %% Berechnung der Switching-Times
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,7 +144,7 @@ function [Q, dot_Q, ddot_Q, T, Q_I, T_I] = parabolic_blends( W_stuetz, delta_T )
   end
   T_I = [0,t_total];
 
-  for g = 1:N_Q
+for g = 1:N_Q
 
     %% --- ARBEITSBEREICH: ------------------------------------------------
     % Ergaenzen Sie bitte hier die fehlenden Stellen.
@@ -105,22 +152,59 @@ function [Q, dot_Q, ddot_Q, T, Q_I, T_I] = parabolic_blends( W_stuetz, delta_T )
     % Division durch 0.
     % ---------------------------------------------------------------------
 
-    % erste und letzte Beschleunigung bleiben gleich
-
+    %% Startintervall
     % Neuberechnung der Geschwindigkeiten
-%     dot_Q_I = ???
-
-
-    % Neuberechnung der n-ten Bescheunigung
-    % mittlere koennen sich aufgrund der Synchronisation aendern
-%      ddot_Q_I = ???
-
+    dot_Q_I(g,1) = ddot_Q_I(g,1) * t(1) - sign( ddot_Q_I(g,1) ) * sqrt( ddot_Q_I(g,1)^2 * t(1)^2 - 2*ddot_Q_I(g,1) * ( Q_I(g,2) - Q_I(g,1) ) );
+    
     % Neuberechnung der Beschleunigungszeiten
-%     t_b = ???
+    if ddot_Q_I(g,1) == 0
+        % Beschleunigung ist gleich 0
+        t_b(g,1) = 0;
+    else
+        % Beschleunigung ist nicht 0
+        t_b(g,1) = dot_Q_I(g,1) / ddot_Q_I(g,1);
+    end
+    
+    %% Mittlere Intervalle
+    for i=2:N_I-1
+        % Neuberechnung der Geschwindigkeiten
+        if t(i) == 0
+            % Zeit ist gleich 0
+            dot_Q_I(g,i) = 0;
+        else
+            % Zeit ist nicht 0
+            dot_Q_I(g,i) = ( Q_I(g,i+1) - Q_I(g,i) ) / t(i);
+        end
+         
+        % Neuberechnung der n-ten Bescheunigung
+        % mittlere koennen sich aufgrund der Synchronisation aendern
+        ddot_Q_I(g,i) = sign( dot_Q_I(g,i) - dot_Q_I(g,i-1) ) * ddot_Q_I_max(g);
 
+        % Neuberechnung der Beschleunigungszeiten
+        if ddot_Q_I(g,i) == 0
+            % Beschleunigung ist gleich 0
+            t_b(g,i) = 0;
+        else
+            % Beschleunigung ist nicht 0
+            t_b(g,i) = ( dot_Q_I(g,i) - dot_Q_I(g,i-1) ) / ddot_Q_I(g,i);
+        end
 
+    end
+    
+    %% Endintervall
+    % Neuberechnung der Geschwindigkeiten
+    dot_Q_I(g,N_I-1) = - ddot_Q_I(g,N_I) * t(N_I-1) + sign( ddot_Q_I(g,N_I) ) * sqrt( ddot_Q_I(g,N_I)^2 * t(N_I-1)^2 + 2*ddot_Q_I(g,N_I) * ( Q_I(g,N_I) - Q_I(g,N_I-1) ) );
+    
+    % Neuberechnung der Beschleunigungszeiten
+    if ddot_Q_I(g,N_I) == 0
+        % Beschleunigung ist gleich 0
+        t_b(g,1) = 0;
+    else
+        % Beschleunigung ist nicht 0
+        t_b(g,1) = -dot_Q_I(g,N_I-1) / ddot_Q_I(g,N_I);
+    end
+    
     %% --- ENDE ARBEITSBEREICH --------------------------------------------
-
 
     % Berechnung der Schaltzeiten
     t_accelerate(g,1)   = 0;
@@ -132,8 +216,7 @@ function [Q, dot_Q, ddot_Q, T, Q_I, T_I] = parabolic_blends( W_stuetz, delta_T )
     t_accelerate(g,N_I) = t_total(N_I-1)-t_b(g,N_I);
     t_const(g,N_I)      = t_total(N_I-1);
 
-  end
-
+end
 
   %% Abbruch, falls gegebene Stuetzpunkte nicht erreicht werden koennen
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -145,14 +228,11 @@ function [Q, dot_Q, ddot_Q, T, Q_I, T_I] = parabolic_blends( W_stuetz, delta_T )
     end
   end
 
-
-
   %% berechne Steuertrajektorien
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   t_end   = max(t_const(:,N_I));
   T       = 0:delta_T:t_end;
-
-
+  
   t_ddot_q_I = zeros(N_Q,N_I*4 -2);
   ddot_q_I   = zeros(N_Q,N_I*4 -2);
   t_dot_q_I  = zeros(N_Q,N_I*2);
