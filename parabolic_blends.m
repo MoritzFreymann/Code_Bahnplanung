@@ -70,7 +70,7 @@ for g = 1:N_Q
         % Berechnung der Geschwindigkeiten
         dot_Q_I(g,i) = sign( Q_I(g,i+1) - Q_I(g,i) ) * dot_Q_I_max(g);
 
-        % Berechnung der Bescheunigungen
+        % Berechnung der Beschleunigungen
         ddot_Q_I(g,i) = sign( dot_Q_I(g,i) - dot_Q_I(g,i-1) ) * ddot_Q_I_max(g);
 
         % Berechnung der Beschleunigungszeiten
@@ -94,7 +94,7 @@ for g = 1:N_Q
     end
     
     %% Endintervall
-    % Berechnung der Bescheunigungen
+    % Berechnung der Beschleunigungen
     ddot_Q_I(g,N_I) = sign( - dot_Q_I(g,N_I-1) ) * ddot_Q_I_max(g);
 
     % Berechnung der Beschleunigungszeiten
@@ -188,7 +188,6 @@ for g = 1:N_Q
             % Beschleunigung ist nicht 0
             t_b(g,i) = ( dot_Q_I(g,i) - dot_Q_I(g,i-1) ) / ddot_Q_I(g,i);
         end
-
     end
     
     %% Endintervall
