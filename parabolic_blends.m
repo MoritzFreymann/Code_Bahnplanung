@@ -197,10 +197,10 @@ for g = 1:N_Q
     % Neuberechnung der Beschleunigungszeiten
     if ddot_Q_I(g,N_I) == 0
         % Beschleunigung ist gleich 0
-        t_b(g,1) = 0;
+        t_b(g,N_I) = 0;
     else
         % Beschleunigung ist nicht 0
-        t_b(g,1) = -dot_Q_I(g,N_I-1) / ddot_Q_I(g,N_I);
+        t_b(g,N_I) = -dot_Q_I(g,N_I-1) / ddot_Q_I(g,N_I);
     end
     
     %% --- ENDE ARBEITSBEREICH --------------------------------------------
